@@ -116,7 +116,7 @@ export FT_PATH=${WORKSPACE}/build/_deps/repo-ft-src
 git clone https://github.com/NVIDIA/FasterTransformer.git # To convert checkpoint
 python3 ${FT_PATH}/examples/pytorch/bart/utils/huggingface_bart_ckpt_convert.py \
         -in_file facebook/mbart-large-50 \
-        -saved_dir ${WORKSPACE}/all_models/mbart/fastertransformer/1/ \
+        -saved_dir ${WORKSPACE}/all_models/bart/fastertransformer/2/ \
         -inference_tensor_para_size 1
 ```
 
