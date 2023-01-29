@@ -82,10 +82,6 @@ The following table shows the details of these settings:
 |                |          `beam_width`           |                   [batch_size]                   |       uint32        |                                                           **Optional**. beam size for beam search, using sampling if setting to 1                                                           |
 |                |        `bad_words_list`         |          [batch_size, 2, word_list_len]          |        int32        |                          **Optional**. List of tokens (words) to never sample. Should be generated with FasterTransformer/examples/pytorch/gpt/utils/word_list.py                           |
 |                |        `stop_words_list`        |          [batch_size, 2, word_list_len]          |        int32        |                         **Optional**. List of tokens (words) that stop sampling. Should be generated with FasterTransformer/examples/pytorch/gpt/utils/word_list.py                         |
-|                | `prompt_learning_task_name_ids` |                   [batch_size]                   |       uint32        |                                                                  **Optional**. task_name_id for each sequence in one batch                                                                  |
-|                |    `request_prompt_lengths`     |                  [batch_size],                   |       uint32        |                               **Optional**. Length of prefix soft prompt embedding. This describes how many tokens of soft prompt embedding in each sentence.                               |
-|                |   `request_prompt_embedding`    |  [batch_size, max_prompt_length, hidden_units]   | float/half/bfloat16 | **Optional**. FT will concat them with results of embedding lookup kernel. For prefix soft prompt embedding, the type must be float; while for p/prompt tuning, the type is same to weight. |
-|                |           `ia3_tasks`           |                   [batch_size]                   |        int32        |                                                                         **Optional**. select ia3 task per-sequence.                                                                         |
 |                |          `top_p_decay`          |                   [batch_size]                   |        float        |                                                                **Optional**. decay values for top_p factual-nucleus sampling                                                                |
 |                |           `top_p_min`           |                   [batch_size]                   |        float        |                                                              **Optional**. min top_p values for top p factual-nucleus sampling                                                              |
 |                |        `top_p_reset_ids`        |                   [batch_size]                   |       uint32        |                                                    **Optional**. reset ids for reseting top_p values for top p factual-nucleus sampling                                                     |
@@ -112,14 +108,15 @@ Download Bart model checkpoint:
 
 ```shell
 docker run -it --rm --gpus=all --shm-size=1g --ulimit memlock=-1 -v ${WORKSPACE}:${WORKSPACE} -w ${WORKSPACE} ${TRITON_DOCKER_IMAGE} bash
-# now in docker
+# now in docker and cd to the path of fastertransformer_backend
 export WORKSPACE=$(pwd)
+export FT_PATH=${WORKSPACE}/build/_deps/repo-ft-src
 
-# git lfs clone https://huggingface.co/facebook/bart-base
+# git lfs clone https://huggingface.co/facebook/mbart-large-50
 git clone https://github.com/NVIDIA/FasterTransformer.git # To convert checkpoint
-python3 FasterTransformer/examples/pytorch/bart/utils/huggingface_bart_ckpt_convert.py \
-        -in_file facebook/bart-base \
-        -saved_dir ${WORKSPACE}/all_models/bart/fastertransformer/1/ \
+python3 ${FT_PATH}/examples/pytorch/bart/utils/huggingface_bart_ckpt_convert.py \
+        -in_file facebook/mbart-large-50 \
+        -saved_dir ${WORKSPACE}/all_models/mbart/fastertransformer/1/ \
         -inference_tensor_para_size 1
 ```
 
@@ -135,8 +132,8 @@ Then we will get the model weights (`xxx.bin`) and the config file of model (`co
 ### Run serving directly
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 mpirun -n 1 --allow-run-as-root /opt/tritonserver/bin/tritonserver  --model-repository=${WORKSPACE}/all_models/bart/ &
-python3 tools/bart_utils/summarization.py --batch_size 32
+CUDA_VISIBLE_DEVICES=0 mpirun -n 1 --allow-run-as-root /opt/tritonserver/bin/tritonserver  --model-repository=${WORKSPACE}/all_models/mbart/ &
+python3 tools/bart_utils/summarization.py --batch_size 32 --hf_model_location facebook/mbart-large-50 --ft_model_location ${WORKSPACE}/all_models/mbart/fastertransformer/1/1-gpu
 ```
 
 * Note: If user encounter `[ERROR] world_size (4) should equal to tensor_para_size_ * pipeline_para_size_ (1 * 1 here)`, please check that the GPU number of your device and set the GPUs you want to use by `CUDA_VISIBLE_DEVICES`. 

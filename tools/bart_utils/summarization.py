@@ -23,7 +23,7 @@ import numpy as np
 import os
 import torch
 from datasets import load_dataset, load_metric
-from transformers import T5ForConditionalGeneration, AutoTokenizer, T5Config
+from transformers import BartForConditionalGeneration, MBartForConditionalGeneration, AutoTokenizer, BartConfig
 from tqdm import tqdm
 import configparser
 import datetime
@@ -42,6 +42,7 @@ def create_inference_server_client(protocol, url, concurrency, verbose):
         return client_util.InferenceServerClient(url,
                                                  verbose=verbose)
 
+
 def prepare_tensor(name, input, protocol):
     client_util = httpclient if protocol == "http" else grpcclient
     t = client_util.InferInput(
@@ -49,12 +50,13 @@ def prepare_tensor(name, input, protocol):
     t.set_data_from_numpy(input)
     return t
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ft_model_location', type=str,
-                        default='/models/T5/HF/t5-base/c-models/')
+                        default='/workspace/build/fastertransformer_backend/all_models/bart/fastertransformer/1/1-gpu')
     parser.add_argument('--hf_model_location', type=str,
-                        default='/models/T5/HF/t5-base/')
+                        default='facebook/mbart-large-50')
     parser.add_argument('--disable_summarize', action='store_true')
     parser.add_argument('--test_hf', action='store_true')
     parser.add_argument('--test_ft', action='store_true')
@@ -91,14 +93,19 @@ def main():
     if test_hf:
         start_time = datetime.datetime.now()
         if args.data_type == "fp32":
-            model = T5ForConditionalGeneration.from_pretrained(
-                hf_model_location, torch_dtype=torch.float32).cuda()
+            dtype = torch.float32
         elif args.data_type == "fp16":
-            model = T5ForConditionalGeneration.from_pretrained(
-                hf_model_location, torch_dtype=torch.float16).cuda()
+            dtype = torch.float16
         elif args.data_type == "bf16":
-            model = T5ForConditionalGeneration.from_pretrained(
-                hf_model_location, torch_dtype=torch.bfloat16).cuda()
+            dtype = torch.bfloat16
+
+        if 'mbart' not in hf_model_location:
+            model = BartForConditionalGeneration.from_pretrained(
+                hf_model_location, torch_dtype=dtype).cuda()
+        else:
+            model = MBartForConditionalGeneration.from_pretrained(
+                hf_model_location, torch_dtype=dtype).cuda()
+
         stop_time = datetime.datetime.now()
         print(
             f"[INFO] load HF model spend {(stop_time - start_time).total_seconds()} sec")
@@ -112,52 +119,36 @@ def main():
         else:
             assert False, "[ERROR] This example only support loading model with FT format directly."
 
-        encoder_config = T5Config(vocab_size=ckpt_config.getint("encoder", "vocab_size"),
-                                  d_model=ckpt_config.getint(
-                                      "encoder", "d_model"),
-                                  d_kv=ckpt_config.getint("encoder", "d_kv"),
-                                  d_ff=ckpt_config.getint("encoder", "d_ff"),
-                                  num_layers=ckpt_config.getint(
-                                      "encoder", "num_layers"),
-                                  num_decoder_layers=ckpt_config.getint(
-                                      "encoder", "num_decoder_layers"),
-                                  num_heads=ckpt_config.getint(
-                                      "encoder", "num_heads"),
-                                  relative_attention_num_buckets=ckpt_config.getint(
-                                      "encoder", "relative_attention_num_buckets_or_max_pos_seq_len"),
-                                  feed_forward_proj=ckpt_config.get(
-                                      "encoder", "feed_forward_proj"),
-                                  pad_token_id=ckpt_config.getint(
-                                      "encoder", "pad_token_id"),
-                                  eos_token_id=ckpt_config.getint(
-                                      "encoder", "eos_token_id"),
-                                  is_gated_act=ckpt_config.getboolean(
-                                      "encoder", "is_gated_act", fallback=0),
-                                  )
-        decoder_config = T5Config(vocab_size=ckpt_config.getint("decoder", "vocab_size"),
-                                  d_model=ckpt_config.getint(
-                                      "decoder", "d_model"),
-                                  d_kv=ckpt_config.getint("decoder", "d_kv"),
-                                  d_ff=ckpt_config.getint("decoder", "d_ff"),
-                                  num_layers=ckpt_config.getint(
-                                      "decoder", "num_layers"),
-                                  num_decoder_layers=ckpt_config.getint(
-                                      "decoder", "num_decoder_layers"),
-                                  num_heads=ckpt_config.getint(
-                                      "decoder", "num_heads"),
-                                  relative_attention_num_buckets=ckpt_config.getint(
-                                      "decoder", "relative_attention_num_buckets_or_max_pos_seq_len"),
-                                  feed_forward_proj=ckpt_config.get(
-                                      "decoder", "feed_forward_proj"),
-                                  pad_token_id=ckpt_config.getint(
-                                      "decoder", "pad_token_id"),
-                                  eos_token_id=ckpt_config.getint(
-                                      "decoder", "eos_token_id"),
-                                  decoder_start_token_id=ckpt_config.getint(
-                                      "decoder", "decoder_start_token_id"),
-                                  is_gated_act=ckpt_config.getboolean(
-                                      "decoder", "is_gated_act", fallback=0),
-                                  )
+        encoder_config = BartConfig(vocab_size=ckpt_config.getint("encoder", "vocab_size"),
+                                    d_model=ckpt_config.getint(
+            "encoder", "d_model"),
+            encoder_ffn_dim=ckpt_config.getint("encoder", "encoder_ffn_dim"),
+            encoder_layers=ckpt_config.getint(
+            "encoder", "encoder_layers"),
+            encoder_attention_heads=ckpt_config.getint(
+            "encoder", "encoder_attention_heads"),
+            activation_function=ckpt_config.get(
+            "structure", "activation_function")
+        )
+        decoder_config = BartConfig(vocab_size=ckpt_config.getint("decoder", "vocab_size"),
+                                    d_model=ckpt_config.getint(
+            "decoder", "d_model"),
+            decoder_ffn_dim=ckpt_config.getint("decoder", "decoder_ffn_dim"),
+            decoder_layers=ckpt_config.getint(
+            "decoder", "decoder_layers"),
+            decoder_attention_heads=ckpt_config.getint(
+            "decoder", "decoder_attention_heads"),
+            activation_function=ckpt_config.get(
+            "structure", "activation_function"),
+            bos_token_id=ckpt_config.getint(
+            "decoder", "bos_token_id"),
+            pad_token_id=ckpt_config.getint(
+            "decoder", "pad_token_id"),
+            eos_token_id=ckpt_config.getint(
+            "decoder", "eos_token_id"),
+            decoder_start_token_id=ckpt_config.getint(
+            "decoder", "decoder_start_token_id")
+        )
 
     if disable_summarize:
         top_k = 1
@@ -167,10 +158,7 @@ def main():
         output_len = args.max_seq_len
 
     def summarize_ft(datapoint):
-        if not disable_summarize:
-            line = "summarize: " + datapoint['article']
-        else:
-            line = datapoint['article']
+        line = datapoint['article']
         line = line.strip()
         line = line.replace(" n't", "n't")
 
@@ -265,10 +253,7 @@ def main():
         return output_lines, tokens
 
     def summarize_hf(datapoint):
-        if not disable_summarize:
-            line = "summarize: " + datapoint['article']
-        else:
-            line = datapoint['article']
+        line = datapoint['article']
         line = line.strip()
         line = line.replace(" n't", "n't")
 
