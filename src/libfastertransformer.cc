@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 2021-2023, NVIDIA CORPORATION. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -59,6 +59,8 @@
 #include "src/fastertransformer/triton_backend/t5/T5TritonModelInstance.h"
 #include "src/fastertransformer/triton_backend/t5-encoder/T5EncoderTritonModel.h"
 #include "src/fastertransformer/triton_backend/t5-encoder/T5EncoderTritonModelInstance.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModel.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModelInstance.h"
 #include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 #include "src/fastertransformer/utils/Tensor.h"
 #include "src/fastertransformer/utils/cuda_bf16_wrapper.h"
@@ -307,6 +309,18 @@ std::shared_ptr<AbstractTransformerModel> ModelState::ModelFactory(
 #endif
     } else if (data_type == "fp32") {
       ft_model = std::make_shared<T5EncoderTritonModel<float>>(tp, pp, custom_ar, model_dir, 0);
+    } else {
+      LOG_MESSAGE(TRITONSERVER_LOG_ERROR, dt_message.c_str());
+    }
+  } else if (model_type == "Bart") {
+    if (data_type == "fp16") {
+      ft_model = std::make_shared<BartTritonModel<half>>(tp, pp, custom_ar, model_dir, 0);
+#ifdef ENABLE_BF16
+    } else if (data_type == "bf16") {
+      ft_model = std::make_shared<BartTritonModel<__nv_bfloat16>>(tp, pp, custom_ar, model_dir, 0);
+#endif
+    } else if (data_type == "fp32") {
+      ft_model = std::make_shared<BartTritonModel<float>>(tp, pp, custom_ar, model_dir, 0);
     } else {
       LOG_MESSAGE(TRITONSERVER_LOG_ERROR, dt_message.c_str());
     }
