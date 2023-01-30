@@ -135,7 +135,7 @@ Then we will get the model weights (`xxx.bin`) and the config file of model (`co
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 mpirun -n 1 --allow-run-as-root /opt/tritonserver/bin/tritonserver  --model-repository=${WORKSPACE}/all_models/bart/ &
-python3 tools/bart_utils/summarization.py --batch_size 32 --hf_model_location facebook/mbart-large-50 --ft_model_location ${WORKSPACE}/all_models/bart/fastertransformer/1/1-gpu
+python3 tools/bart_utils/summarization.py --hf_model_location facebook/mbart-large-50 --ft_model_location ${WORKSPACE}/all_models/bart/fastertransformer/1/1-gpu
 ```
 
 * Note: If user encounter `[ERROR] world_size (4) should equal to tensor_para_size_ * pipeline_para_size_ (1 * 1 here)`, please check that the GPU number of your device and set the GPUs you want to use by `CUDA_VISIBLE_DEVICES`. 
