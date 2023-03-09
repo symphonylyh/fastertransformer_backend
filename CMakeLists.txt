@@ -111,7 +111,7 @@ else()
   FetchContent_Declare(
     repo-ft
     GIT_REPOSITORY https://github.com/symphonylyh/FasterTransformer.git 
-    GIT_TAG dev/bart-triton
+    GIT_TAG dev/alexatm-triton
     GIT_SHALLOW ON
   )
 endif()
