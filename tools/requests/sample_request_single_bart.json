@@ -85,6 +85,6 @@
             "name": "no_repeat_ngram_size",
             "data": [[2]],
             "dtype": "uint32"
-        },
+        }
     ]
 }
