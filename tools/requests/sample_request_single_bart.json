@@ -80,6 +80,11 @@
             "name": "bad_words_list",
             "data": [[[0], [-1]]],
             "dtype": "int32"
-        }
+        },
+        {
+            "name": "no_repeat_ngram_size",
+            "data": [[2]],
+            "dtype": "uint32"
+        },
     ]
 }

@@ -157,6 +157,13 @@ input [
     reshape: { shape: [ ] }
     optional: true
   }
+  {
+    name: "no_repeat_ngram_size"
+    data_type: TYPE_UINT32
+    dims: [ 1 ]
+    reshape: { shape: [ ] }
+    optional: true
+  }
 ]
 output [
   {
