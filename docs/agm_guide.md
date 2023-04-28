@@ -113,9 +113,10 @@ git clone https://github.com/triton-inference-server/fastertransformer_backend.g
 cd fastertransformer_backend
 export WORKSPACE=$(pwd)
 
-docker build --rm --build-arg TRITON_VERSION=23.02 -t triton-ft:latest -f docker/Dockerfile .
-docker run -itd --gpus=all -e NCCL_LAUNCH_MODE=PARALLEL --shm-size=1g --ulimit memlock=-1 -v ${WORKSPACE}:${WORKSPACE} -w ${WORKSPACE} triton-ft:latest
+docker build --rm --build-arg TRITON_VERSION=22.12 -t triton-ft:latest -f docker/Dockerfile .
+docker run --gpus=all -e NCCL_LAUNCH_MODE=PARALLEL --shm-size=1g --ulimit memlock=-1 -v ${PWD}:/workspace/triton -w /workspace/triton -itd triton-ft:latest
 # now in docker and cd to the path of fastertransformer_backend
+cd /workspace/build/fastertransformer_backend
 export WORKSPACE=$(pwd)
 export FT_PATH=${WORKSPACE}/build/_deps/repo-ft-src
 
