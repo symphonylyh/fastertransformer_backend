@@ -109,7 +109,7 @@ Following the guide [#setup](../README.md#setup) to prepare the docker image.
 Download Agm model checkpoint:
 
 ```shell
-git clone -b dev/alexagm-triton https://github.com/triton-inference-server/fastertransformer_backend.git
+git clone -b dev/alexagm-triton https://github.com/symphonylyh/fastertransformer_backend.git
 cd fastertransformer_backend
 export WORKSPACE=$(pwd)
 
