@@ -109,7 +109,7 @@ Following the guide [#setup](../README.md#setup) to prepare the docker image.
 Download Agm model checkpoint:
 
 ```shell
-git clone https://github.com/triton-inference-server/fastertransformer_backend.git
+git clone -b dev/alexagm-triton https://github.com/triton-inference-server/fastertransformer_backend.git
 cd fastertransformer_backend
 export WORKSPACE=$(pwd)
 
@@ -120,8 +120,8 @@ cd /workspace/build/fastertransformer_backend
 export WORKSPACE=$(pwd)
 export FT_PATH=${WORKSPACE}/build/_deps/repo-ft-src
 
-# git clone https://github.com/NVIDIA/FasterTransformer.git # To convert checkpoint
-python3 ${FT_PATH}/examples/pytorch/agm/utils/huggingface_agm_ckpt_convert.py -in_file <model name or path> -saved_dir ${WORKSPACE}/all_models/agm/fastertransformer/1/ -inference_tensor_para_size 1 -w bf16 --pad_embedding
+# convert weight
+python3 ${FT_PATH}/examples/pytorch/agm/utils/huggingface_agm_ckpt_convert.py -in_file test -saved_dir ${WORKSPACE}/all_models/agm/fastertransformer/1/ -inference_tensor_para_size 1 -w bf16
 ```
 
 We need to convert to format handled by FasterTransformer. 

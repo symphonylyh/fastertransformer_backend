@@ -208,7 +208,7 @@ parameters {
 parameters {
   key: "data_type"
   value: {
-    string_value: "fp16"
+    string_value: "bf16"
   }
 }
 parameters {
