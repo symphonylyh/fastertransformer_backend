@@ -2,18 +2,17 @@
     "request": [
         {
             "name": "input_ids",
-            "data": [[176832,  15500, 117023, 113787,  79942,  88278, 224053,  81494,  16261,
-            145410,  17548,  14670]],
+            "data": [[108, 588, 4153, 407, 3734, 447, 400, 2030, 407]],
             "dtype": "uint32"
         },
         {
             "name": "sequence_length",
-            "data": [[12]],
+            "data": [[9]],
             "dtype": "uint32"
         },
         {
             "name": "max_output_len",
-            "data": [[31]],
+            "data": [[30]],
             "dtype": "uint32"
         },
         {
@@ -63,12 +62,12 @@
         },
         {
             "name": "start_id",
-            "data": [[2]],
+            "data": [[108]],
             "dtype": "uint32"
         },
         {
             "name": "end_id",
-            "data": [[2]],
+            "data": [[109]],
             "dtype": "uint32"
         },
         {
