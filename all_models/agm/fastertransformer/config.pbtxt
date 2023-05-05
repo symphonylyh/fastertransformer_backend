@@ -196,7 +196,7 @@ instance_group [
 parameters {
   key: "tensor_para_size"
   value: {
-    string_value: "1"
+    string_value: "4"
   }
 }
 parameters {
@@ -226,6 +226,6 @@ parameters {
 parameters {
   key: "model_checkpoint_path"
   value: {
-    string_value: "./all_models/agm/fastertransformer/1/1-gpu/"
+    string_value: "./all_models/agm/fastertransformer/1/4-gpu/"
   }
 }
