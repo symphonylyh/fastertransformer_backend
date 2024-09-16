@@ -28,7 +28,7 @@
 
 # FasterTransformer Backend
 
-The Triton backend for the [FasterTransformer](https://github.com/NVIDIA/FasterTransformer). This repository provides a script and recipe to run the highly optimized transformer-based encoder and decoder component, and it is tested and maintained by NVIDIA. In the FasterTransformer v4.0, it supports multi-gpu inference on GPT-3 model. This backend integrates FasterTransformer into Triton to use giant GPT-3 model serving by Triton. In the below example, we will show how to use the FasterTransformer backend in Triton to run inference on a GPT-3 model with 345M parameters trained by [Megatron-LM](https://github.com/NVIDIA/Megatron-LM). In latest release, FasterTransformer backend supports the multi-node multi-GPU inference on T5 with the model of huggingface. 
+The Triton backend for the [FasterTransformer](https://github.com/NVIDIA/FasterTransformer). This repository provides a script and recipe to run the highly optimized transformer-based encoder and decoder component, and it is tested and maintained by NVIDIA. In the FasterTransformer v4.0, it supports multi-gpu inference on GPT-3 model. This backend integrates FasterTransformer into Triton to use giant GPT-3 model serving by Triton. In the below example, we will show how to use the FasterTransformer backend in Triton to run inference on a GPT-3 model with 345M parameters trained by [Megatron-LM](https://github.com/NVIDIA/Megatron-LM). In latest release, FasterTransformer backend supports the multi-node multi-GPU inference on T5 and BART/mBART with the model of huggingface. 
 
 Note that this is a research and prototyping tool, not a formal product or maintained framework. User can learn more about Triton backends in the [backend repo](https://github.com/triton-inference-server/backend). Ask questions or report problems on the [issues page](https://github.com/triton-inference-server/fastertransformer_backend/issues) in this FasterTransformer_backend repo.
 
@@ -53,14 +53,15 @@ Note that this is a research and prototyping tool, not a formal product or maint
 
 ## Support matrix
 
-| Models   | FP16 | BF16 | Tensor parallel | Pipeline parallel |
-| -------- | ---- | ---- | --------------- | ----------------- |
-| GPT/OPT  | Yes  | Yes  | Yes             | Yes               |
-| BLOOM    | Yes  | Yes  | Yes             | Yes               |
-| GPT-J    | Yes  | Yes  | Yes             | Yes               |
-| T5/UL2   | Yes  | Yes  | Yes             | Yes               |
-| GPT-NeoX | Yes  | Yes  | Yes             | Yes               |
-| BERT     | Yes  | Yes  | Yes             | Yes               |
+| Models     | FP16 | BF16 | Tensor parallel | Pipeline parallel |
+| ---------- | ---- | ---- | --------------- | ----------------- |
+| GPT/OPT    | Yes  | Yes  | Yes             | Yes               |
+| BLOOM      | Yes  | Yes  | Yes             | Yes               |
+| GPT-J      | Yes  | Yes  | Yes             | Yes               |
+| T5/UL2     | Yes  | Yes  | Yes             | Yes               |
+| GPT-NeoX   | Yes  | Yes  | Yes             | Yes               |
+| BERT       | Yes  | Yes  | Yes             | Yes               |
+| BART/mBART | Yes  | Yes  | Yes             | Yes               |
 
 ## Introduction
 
